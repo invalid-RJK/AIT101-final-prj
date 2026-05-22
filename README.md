@@ -1,7 +1,19 @@
 # --finalProject
 ---------------------
-Before we start to develop, we need to list all varaibles we intend to work and assign proper names for them
+The list of variable that will be implemented across the whole files
 
-If we do not do this before, it would lead to misleading and issues in case testing
+- Lecturer file:
+  char[size] lecturer_names = [""];
+  char[size] subjects = [""];
+  short int lecture_total_num;
+  short int[lecture_total_num] attendace_per_subject;
 
-If you have any proposals for varaible names, commit your ideas 
+- Academic staff file
+  short int semester_duration;
+  short int total_subjects;
+  char[size] attendance = []
+  
+
+- Student file
+  char[size] student_names = [""];
+  
