@@ -3,20 +3,31 @@
 All variables will be contained in the structures.c file and each file can access it 
 
 Structures.c {
+
    #define MAX_STRING 50
+   
    #define MAX_CODE 10
 
    // 1. Subject Information
+   
    struct Subject {
+   
        char subject_code[MAX_CODE];
+       
        char subject_name[MAX_STRING];
+       
        char assigned_lecturer_id[MAX_STRING]; // Links Subject to a Lecturer
+       
    };
 
    // 2. Lecturer Information
+   
    struct Lecturer {
+   
        char lecturer_id[MAX_STRING];
+       
        char lecturer_name[MAX_STRING];
+       
    };
 
    // 3. Student Information
