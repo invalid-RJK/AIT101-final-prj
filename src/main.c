@@ -2,7 +2,19 @@
 #include "Structures.h"
 
 int main(){
-    printf("Hello, World!");
+    char role;
+    while (1){
+        printf("1. Admin\n2. Lecturer\n3. Student\nEnter your status: ");
+        scanf("%c", &role);
 
-    return 0;
+        if (role == "1"){
+
+        }
+        elif (role == "2"){
+
+        }
+        else{
+            
+        }
+    }
 }
