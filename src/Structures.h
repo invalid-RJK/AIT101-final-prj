@@ -1,3 +1,5 @@
+#ifndef STRUCTURES.H 
+#define STRUCTURES.H 
 #define MAX_STRING 50
 #define MAX_CODE 10
 
@@ -35,3 +37,4 @@ struct Warning {
     float attendance_percentage;
     char date_issued[12];
 };
+#endif
