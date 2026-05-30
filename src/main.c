@@ -5,16 +5,14 @@
 #include "Admin.c"
 
 int main(){
-    // Declaring local variables that used within main()
     bool is_True = true;
     char role;
 
-    // Use infinite loop to enable constant execution of program 
     while (is_True){
         system("clear");
         printf("Welcome to the Student Attendance Management System!\n");
         printf("1. Admin\n2. Lecturer\n3. Student\n4. Exit\nEnter your status: ");
-        scanf("%c", &role);
+        scanf(" %c", &role);
 
         if (role == '1'){
             system("clear");
@@ -31,7 +29,6 @@ int main(){
         }
         else{
             printf("Invalid input! Such a role does not exist!");
-            // Return to the beginning of input
         }
     }
 }
