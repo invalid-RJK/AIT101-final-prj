@@ -35,55 +35,75 @@ int reg_new_subjects(){
     printf("Enter a name of subject: ");
     scanf(" %[^\n]", subj.subject_name);
 
-    printf("\nEnter ID");
+    printf("\nEnter ID: ");
     scanf("%s", subj.subject_code);
 
     printf("\nEnter lecturer's ID assigned to subject: ");
     scanf("%s", subj.assigned_lecturer_id);
 
-    fprintf(fptr, "%s: %s, %s", subj.subject_name, subj.subject_code, subj.assigned_lecturer_id);
+    fprintf(fptr, "%s: %s, %s\n", subj.subject_name, subj.subject_code, subj.assigned_lecturer_id);
 
     fclose(fptr);
     system("clear");
 
 }
 
-int list_of_actions(){
+int attendance_reports(){
+    struct Lecturer lect;
+    struct Subject subj;
     char choice;
-    printf("What function to do?\n");
-    printf("1. Register new Lecturers\n2. Register new subjects\n3.View attendance report\n");
-    printf("4. View student attendance percentage\n5. Exit\n");
-    printf("Enter a choice number: ");
+    char input_name[MAX_STRING];
 
-    scanf(" %c", &choice);
+    system("clear");
+    printf("Attendance by\n1. Subject\n2. Lecturer");
+    scanf("%c", &choice);
 
     if (choice == '1'){
-        system("clear");
-        reg_new_Lecturers();
+        printf("Enter lecturer's name: ");
+        scanf("%s", &input_name);
+        
+        
     }
     else if (choice == '2'){
-        system("clear");
-        reg_new_subjects();
-    }
-    else if (choice == '3'){
 
     }
-    else if (choice == '4'){
-
-    }
-    else if (choice == '5'){
-        return 1;
-    }
-
     else{
-        printf("Invalid input! Such a choice does not exist!");
+        printf("Error! Invalid role choice! Try again!");
     }
 }
 
 int admin_main(){
-    bool is_True = true;
+    static bool is_True = true;
+    char choice;
 
     while(is_True){
-        list_of_actions();
+        printf("What function to do?\n");
+        printf("1. Register new Lecturers\n2. Register new subjects\n3. View attendance report\n");
+        printf("4. View student attendance percentage\n5. Exit\n");
+        printf("Enter a choice number: ");
+
+        scanf(" %c", &choice);
+
+        if (choice == '1'){
+            system("clear");
+            reg_new_Lecturers();
+        }
+        else if (choice == '2'){
+            system("clear");
+            reg_new_subjects();
+        }
+        else if (choice == '3'){
+
+        }
+        else if (choice == '4'){
+
+        }
+        else if (choice == '5'){
+            is_True = false;
+        }
+
+        else{
+            printf("Invalid input! Such a choice does not exist!");
+        }
     }
 }
