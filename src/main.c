@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include "Structures.h"
 #include "Admin.c"
+#include "Students.c"
 
 int main(){
     bool is_True = true;
@@ -22,7 +23,8 @@ int main(){
             break;
         }
         else if (role == '3'){
-            break;
+            system("clear");
+            students_main();
         }
         else if (role == '4'){
             is_True = false;

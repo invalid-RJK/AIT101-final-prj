@@ -3,11 +3,11 @@
 #include "Structures.h"
 
 int reg_new_Lecturers(){
+    FILE *file_lecturer = fopen("../data_field/lecturer_info.txt", "a");
     struct Lecturer lect;
-    FILE *fptr = fopen("../data_field/lecturer_info.txt", "a");
 
-    if(fptr == NULL){
-        printf("lecturer_info.txt does not exist!\n");
+    if (file_lecturer == NULL){
+        printf("No data found!");
         return 1;
     }
     
@@ -17,18 +17,17 @@ int reg_new_Lecturers(){
     printf("\nEnter corresponding ID: ");
     scanf("%s", lect.lecturer_id);
 
-    fprintf(fptr, "%s: %s\n", lect.lecturer_name, lect.lecturer_id);
+    fprintf(file_lecturer, "%s: %s\n", lect.lecturer_name, lect.lecturer_id);
 
-    fclose(fptr);
-    printf("Done!\n");
+    fclose(file_lecturer);
 }
 
 int reg_new_subjects(){
+    FILE *file_subjects = fopen("../data_field/subject_info_txt", "a");
     struct Subject subj;
-    FILE *fptr = fopen("../data_field/subject_info_txt", "a");
-
-    if(fptr == NULL){
-        printf("subject.txt does not exist!\n");
+    
+    if(file_subjects == NULL){
+        printf("No data found!");
         return 1;
     }
 
@@ -41,39 +40,58 @@ int reg_new_subjects(){
     printf("\nEnter lecturer's ID assigned to subject: ");
     scanf("%s", subj.assigned_lecturer_id);
 
-    fprintf(fptr, "%s: %s, %s\n", subj.subject_name, subj.subject_code, subj.assigned_lecturer_id);
+    fprintf(file_subjects, "%s: %s, %s\n", subj.subject_name, subj.subject_code, subj.assigned_lecturer_id);
 
-    fclose(fptr);
-    system("clear");
+    fclose(file_subjects);
 
 }
 
 int attendance_reports(){
-    struct Lecturer lect;
-    struct Subject subj;
+    FILE *file_attendance = fopen("../data_field/attendance_reports.txt", "r");
+    struct Attendance report;
     char choice;
-    char input_name[MAX_STRING];
+
+    if (file_attendance == NULL){
+        printf("No data found!");
+        return 1;
+    }
 
     system("clear");
-    printf("Attendance by\n1. Subject\n2. Lecturer");
-    scanf("%c", &choice);
+    printf("Attendance by\n1. Lecturer\n2. Subject\nEnter a choice number: ");
+    scanf(" %c", &choice);
 
     if (choice == '1'){
-        printf("Enter lecturer's name: ");
-        scanf("%s", &input_name);
-        
-        
+        system("clear");
+        printf("Enter lecturer's ID: ");
+        scanf(" %[^\n]", report.student_id);
+
+        while (fgets(report.student_id, sizeof(report.student_id), file_attendance) != NULL){
+            // Add condition to check if ID exists in file
+            printf("%s", report.student_id);
+        }
+
+        fclose(file_attendance);
     }
     else if (choice == '2'){
+        system("clear");
+        printf("Enter subject's ID: ");
+        scanf(" %[^\n]", report.subject_code);
 
+        while(fgets(report.subject_code, sizeof(report.subject_code), file_attendance) != NULL){
+            // Add conditino to check if ID exists in file
+            printf("%s", report.subject_code);
+        }
+
+        fclose(file_attendance);
     }
     else{
         printf("Error! Invalid role choice! Try again!");
+        return 1;
     }
 }
 
 int admin_main(){
-    static bool is_True = true;
+    bool is_True = true;
     char choice;
 
     while(is_True){
@@ -93,7 +111,8 @@ int admin_main(){
             reg_new_subjects();
         }
         else if (choice == '3'){
-
+            system("clear");
+            attendance_reports();
         }
         else if (choice == '4'){
 
