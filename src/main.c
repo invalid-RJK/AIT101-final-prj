@@ -6,10 +6,9 @@
 #include "Students.c"
 
 int main(){
-    bool is_True = true;
     char role;
 
-    while (is_True){
+    while (1){
         system("clear");
         printf("Welcome to the Student Attendance Management System!\n");
         printf("1. Admin\n2. Lecturer\n3. Student\n4. Exit\nEnter your status: ");
@@ -27,10 +26,10 @@ int main(){
             students_main();
         }
         else if (role == '4'){
-            is_True = false;
+            return 0;
         }
         else{
-            printf("Invalid input! Such a role does not exist!");
+            printf("Invalid input! Such a role does not exist!\n");
         }
     }
 }

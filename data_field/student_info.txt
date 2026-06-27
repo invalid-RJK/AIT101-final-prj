@@ -1,0 +1,4 @@
+John Doe: SWE2602161
+Alice Smith: AIT2309221
+Bob Johnson: SWE2504123
+Aliriza Meen: EEE2502131

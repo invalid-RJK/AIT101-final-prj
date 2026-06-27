@@ -14,11 +14,10 @@ void students_reminders(){
 int students_main(){
     char studentID[MAX_STRING];
     char choice;
-    bool is_True = true;
     printf("Enter your student ID: ");
     scanf(" %[^\n]", studentID);
 
-    while(is_True = true){
+    while(1){
         system("clear");
         printf("Welcome, %s\n1. View attendance percentage by subject\n2. View reminders\n", studentID);
         printf("Enter an option: ");
