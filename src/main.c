@@ -4,6 +4,7 @@
 #include "Structures.h"
 #include "Admin.c"
 #include "Students.c"
+#include "Lecturer.c"
 
 int main(){
     char role;
@@ -19,7 +20,8 @@ int main(){
             admin_main();
         }
         else if (role == '2'){
-            break;
+            system("clear");
+            lecturer_main();
         }
         else if (role == '3'){
             system("clear");
