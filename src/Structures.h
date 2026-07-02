@@ -1,7 +1,13 @@
-#ifndef STRUCTURES.H 
-#define STRUCTURES.H 
+#ifndef STRUCTURES_H 
+#define STRUCTURES_H 
 #define MAX_STRING 50
 #define MAX_CODE 10
+
+void pause(){
+    printf("\nEnter any character to return to the menu: ");
+    char pause;
+    scanf(" %c", &pause);
+}
 
 struct Subject {
     char subject_code[MAX_CODE];

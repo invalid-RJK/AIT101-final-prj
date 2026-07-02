@@ -16,7 +16,7 @@ int reg_new_Lecturers(){
     scanf(" %[^\n]", lect.lecturer_name);
 
     printf("\nEnter corresponding ID: ");
-    scanf("%s", lect.lecturer_id);
+    scanf(" %49s", lect.lecturer_id);
 
     fprintf(file_lecturer, "%s: %s\n", lect.lecturer_name, lect.lecturer_id);
 
@@ -123,7 +123,6 @@ int attendance_reports(){
         if(found_records == 0){
             printf("No attendance records found for this lecturer's subjects\n");
         }
-    
     }
     else if(choice == '2'){
         system("clear");
@@ -195,11 +194,7 @@ int attendance_reports(){
         return 1;
     }
 
-    printf("\nEnter any character to return to the menu: ");
-    char pause;
-    scanf(" %c", &pause);
-
-    system("clear");
+    pause();
     return 0;
 }
 
@@ -262,7 +257,7 @@ int view_warnings(){
         return 1;
     }
 
-    printf("\tWarnings history\n");
+    printf("Warnings history\n");
     printf("----------------------------------------\n");
     while(fgets(line, sizeof(line), file_warnings) != NULL){
         printf("%s", line);
@@ -270,11 +265,7 @@ int view_warnings(){
 
     fclose(file_warnings);
 
-    printf("----------------------------------------\n");
-    printf("\nEnter any character to return to the menu: ");
-    char pause;
-    scanf(" %c", &pause);
-
+    pause();
     system("clear");
     return 0;
 }
