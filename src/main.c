@@ -1,9 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include "Structures.h"
 #include "Admin.c"
 #include "Students.c"
+#include "Lecturer.c"
+
+void wait_for_keypress(){
+    printf("\nEnter any character to return to the menu: ");
+    char pause;
+    scanf(" %c", &pause);
+}
 
 int main(){
     char role;
@@ -19,7 +25,8 @@ int main(){
             admin_main();
         }
         else if(role == '2'){
-            break;
+            system("clear");
+            lecturer_main();
         }
         else if(role == '3'){
             system("clear");

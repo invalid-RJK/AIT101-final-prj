@@ -1,2 +1,4 @@
-Programming in C language : AIT102, LMEE101290
+Programming in C language : AIT102, LIRT102299
 Python and TensorFlow: AIT101, LCST101222
+Calculus 1: BSC121, LAIT2409012
+Linear Algebra: BSC124, LDSC2409125

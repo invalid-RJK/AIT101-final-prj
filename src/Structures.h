@@ -3,11 +3,7 @@
 #define MAX_STRING 50
 #define MAX_CODE 10
 
-void pause(){
-    printf("\nEnter any character to return to the menu: ");
-    char pause;
-    scanf(" %c", &pause);
-}
+void wait_for_keypress();
 
 struct Subject {
     char subject_code[MAX_CODE];
