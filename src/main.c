@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "Structures.h"
-#include "Admin.c"
-#include "Students.c"
-#include "Lecturer.c"
+#include "Admin.h"
+#include "Students.h"
+#include "Lecturer.h"
 
 void wait_for_keypress(){
     printf("\nEnter any character to return to the menu: ");

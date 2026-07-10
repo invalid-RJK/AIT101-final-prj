@@ -1,10 +1,15 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include "Structures.h"
 
 int reg_new_Lecturers(){
     struct Lecturer lect;
-    FILE *file_lecturer = fopen("../data_field/lecturer_info.txt", "a");
+    char temp_lect_name[MAX_STRING];
+    char temp_lect_id[MAX_STRING];
+    int is_duplicate = 0;
+
+    FILE *file_lecturer = fopen("../data_field/lecturer_info.txt", "a+");
 
     if (file_lecturer == NULL){
         printf("Error: lecturer_info.txt not found!");
@@ -12,73 +17,106 @@ int reg_new_Lecturers(){
     }
     
     printf("Enter a name of new lecturer: ");
-    scanf(" %49[^\n]", lect.lecturer_name);
+    scanf(" %49[^\n]", temp_lect_name);
 
     printf("Enter corresponding ID(at fist, put 'L'): ");
-    scanf(" %49s", lect.lecturer_id);
+    scanf(" %49s", temp_lect_id);
 
-    if(lect.lecturer_id[0] == 'L'){
-        fprintf(file_lecturer, "%s: %s\n", lect.lecturer_name, lect.lecturer_id);
+    rewind(file_lecturer);
+    while(fscanf(file_lecturer, " %[^:]: %s", lect.lecturer_name, lect.lecturer_id) == 2){
+        if(strcmp(temp_lect_name, lect.lecturer_name) == 0 && strcmp(temp_lect_id, lect.lecturer_id) == 0){
+            is_duplicate = 1;
+            break;
+        }
+    }
 
-        fclose(file_lecturer);
+    system("clear");
+    if(is_duplicate == 1){
+        printf("Error: Lecturer ID '%s' aldready exist!\n", temp_lect_id);
     }
     else{
-        system("clear");
-        printf("Error: start ID with 'L' letter!\n");
-        wait_for_keypress();
+        if(temp_lect_id[0] == 'L'){
+            fprintf(file_lecturer, "%s: %s\n", temp_lect_name, temp_lect_id);
+            printf("Successfully added new lecturer info!\n");
+        }
+        else{
+            printf("Error: start ID with 'L' letter!\n");
+        }
     }
-    
+    fclose(file_lecturer);
+    wait_for_keypress();
     return 0;
 }
 
 int reg_new_subjects(){
     struct Subject subj;
-    FILE *file_subjects = fopen("../data_field/subject_info.txt", "a");
+    char temp_subject_name[MAX_STRING];
+    char temp_subject_code[MAX_STRING];
+    char temp_assigned_lecturer_id[MAX_STRING];
+    int is_duplicate = 0;
+
+    FILE *file_subjects = fopen("../data_field/subject_info.txt", "a+");
     
     if(file_subjects == NULL){
         printf("No data found!");
-        return 1;
+        wait_for_keypress();
+        return 0;
     }
 
     printf("Enter a name of subject: ");
-    scanf(" %49[^\n]", subj.subject_name);
+    scanf(" %49[^\n]", temp_subject_name);
 
-    printf("\nEnter ID: ");
-    scanf("%s", subj.subject_code);
+    printf("Enter ID: ");
+    scanf("%49s", temp_subject_code);
 
-    printf("\nEnter lecturer's ID assigned to subject: ");
-    scanf("%s", subj.assigned_lecturer_id);
+    printf("Enter lecturer's ID assigned to subject: ");
+    scanf("%49s", temp_assigned_lecturer_id);
 
-    fprintf(file_subjects, "%s: %s, %s\n", subj.subject_name, subj.subject_code, subj.assigned_lecturer_id);
+    rewind(file_subjects);
+    while(fscanf(file_subjects, " %[^:]: %[^,], %s", subj.subject_name, subj.subject_code, subj.assigned_lecturer_id) == 3){
+        if(strcmp(temp_subject_code, subj.subject_code) == 0 && strcmp(temp_assigned_lecturer_id, subj.assigned_lecturer_id) == 0){
+            is_duplicate = 1;
+            break;
+        }
+    }
 
+    system("clear");
+    if(is_duplicate == 1){
+        printf("Error: Subject '%s' already exist!\n", temp_subject_code);
+    }
+    else{
+        fprintf(file_subjects, "%s: %s, %s\n", temp_subject_name, temp_subject_code, temp_assigned_lecturer_id);
+        printf("Successfully added the new subject!\n");
+    }
     fclose(file_subjects);
-    
+    wait_for_keypress();
     return 0;
 }
 
 int attendance_reports(){
-    FILE *file_attendance;
-    FILE *file_subjects;
     struct Attendance att;
+    struct Subject subj;
     char choice;
     char search_id[MAX_STRING];
     char assigned_subjects[10][MAX_CODE];
-    char line[150];
     int subject_count = 0;
 
     system("clear");
-    printf("--- Attendance Reports ---\n1. By Lecturer\n2. By Subject\n3. Student's attendance percentage\nEnter a choice number: ");
+    printf("--- Attendance Reports ---\n1. By Lecturer\n2. By Subject\n3. Student's attendance percentage\n4. Exit\nEnter a choice number: ");
     scanf(" %c", &choice);
 
     if(choice == '1'){
+        char line[MAX_STRING * 3];
+
         system("clear");
         printf("Enter Lecturer's ID: ");
-        scanf("%s", search_id);
+        scanf("%49s", search_id);
 
-        file_subjects = fopen("../data_field/subject_info.txt", "r");
+        FILE *file_subjects = fopen("../data_field/subject_info.txt", "r");
 
         if(file_subjects == NULL){
-            printf("Error: subjecgt_info.txt not found!\n");
+            printf("Error: subject_info.txt not found\n");
+            wait_for_keypress();
             return 1;
         }
 
@@ -86,42 +124,30 @@ int attendance_reports(){
             char temp_name[MAX_STRING], temp_code[MAX_CODE], temp_lect_id[MAX_STRING];
             if(sscanf(line, "%[^:]: %[^,], %s", temp_name, temp_code, temp_lect_id) == 3){
                 if(strcmp(temp_lect_id, search_id) == 0){
-                    strcpy(assigned_subjects[subject_count], temp_code);
-                    subject_count++;
-                }
-                else{
-                    system("clear");
-                    printf("Error: Such Lecturer not found!\n");
-                    
-                    wait_for_keypress();
-                    return 0;
+                    if(subject_count < 10){
+                        strcpy(assigned_subjects[subject_count], temp_code);
+                        subject_count++;
+                    }
                 }
             }
         }
         fclose(file_subjects);
 
-        if(subject_count == 0){
-            system("clear");
-            printf("No subjects assigned to Lecturer ID: %s\n", search_id);
-            return 0;
-        }
-
-        file_attendance = fopen("../data_field/attendance_reports.txt", "r");
+        FILE *file_attendance = fopen("../data_field/attendance_reports.txt", "r");
 
         if(file_attendance == NULL){
             printf("Error: attendance_reports.txt not found!\n");
+            wait_for_keypress();
             return 1;
         }
 
         system("clear");
-
         printf("--- Attendance Report for Lecturer: %s ---\n", search_id);
         printf("%-15s %-15s %-15s %-10s\n", "Subject Code", "Student ID", "Date", "Status");
         printf("-------------------------------------------------------\n");\
 
         int found_records = 0;
-
-        while(fscanf(file_attendance, "%s %s %s %c", att.subject_code, att.student_id, att.date, &att.status) == 4){
+        while(fscanf(file_attendance, " %[^:]: %[^,], %[^,], %c", att.subject_code, att.student_id, att.date, &att.status) == 4){
             for(int i = 0; i < subject_count; i++){
                 if(strcmp(att.subject_code, assigned_subjects[i]) == 0){
                     printf("%-15s %-15s %-15s %-10c\n", att.subject_code, att.student_id, att.date, att.status);
@@ -131,7 +157,7 @@ int attendance_reports(){
             }
         }
         fclose(file_attendance);
-
+        
         if(found_records == 0){
             printf("No attendance records found for this lecturer's subjects\n");
         }
@@ -139,42 +165,42 @@ int attendance_reports(){
     else if(choice == '2'){
         system("clear");
         printf("Enter Subject's ID: ");
-        scanf("%s", search_id);
+        scanf("%49s", search_id);
 
-        file_attendance = fopen("../data_field/attendance_reports.txt", "r");
+        FILE *file_attendance = fopen("../data_field/attendance_reports.txt", "r");
 
         if(file_attendance == NULL){
             printf("Error: attendance_reports.txt not found!\n");
+            wait_for_keypress();
             return 1;
         }
 
         system("clear");
-
         printf("--- Attendance Report for Subject: %s ---\n", search_id);
         printf("%-15s %-15s %-15s %-10s\n", "Subject Code", "Student ID", "Date", "Status");
         printf("-------------------------------------------------------\n");
 
         int found_records = 0;
-
-        while(fscanf(file_attendance, "%s %s %s %c", att.subject_code, att.student_id, att.date, &att.status) == 4){
-            if(strcmp(att.subject_code, search_id) == 0){
+        while(fscanf(file_attendance, " %[^:]: %[^,], %[^,], %c", att.subject_code, att.student_id, att.date, &att.status) == 4){
+            if(strcmp(search_id, att.subject_code) == 0){
                 printf("%-15s %-15s %-15s %-10c\n", att.subject_code, att.student_id, att.date, att.status);
                 found_records++;
             }
         }
-        fclose(file_attendance);
 
         if(found_records == 0){
-            system("clear");
-            printf("No attendance records found for Subject ID: %s\n", search_id);
+            printf("No attendance records found for this subject\n");
         }
+
+        fclose(file_attendance);
+        wait_for_keypress();
+        return 0;
     }
     else if(choice == '3'){
-        struct Subject subj;
-        struct Attendance att;
         char temp_id[MAX_STRING];
         char temp_subject_code[MAX_STRING];
-        int found_any = 0;
+        int total_classes = 0;
+        int attended_classes = 0;
 
         system("clear");
         printf("Enter student's ID: ");
@@ -182,48 +208,36 @@ int attendance_reports(){
         printf("Enter course code: ");
         scanf(" %49s", temp_subject_code);
 
-        FILE *file_subjects = fopen("../data_field/subject_info.txt", "r");
         FILE *file_attendance = fopen("../data_field/attendance_reports.txt", "r");
 
-        if(file_attendance == NULL && file_subjects == NULL){
-            printf("Error: files not found!\n");
-            return 1;
-        }
-        
-        system("clear");
-        printf("%-15s %-25s %-15s\n", "Subject Code", "Subject Name", "Percentage");
-        printf("-------------------------------------------------------\n");
-
-        while(fscanf(file_subjects, " %[^:]: %[^,], %s", subj.subject_name, subj.subject_code, subj.assigned_lecturer_id) == 3){
-            int total_classes = 0;
-            int attended_classes = 0;
-            
-            while(fscanf(file_attendance, "%s %s %s %c", att.subject_code, att.student_id, att.date, &att.status) == 4){
-                if(strcmp(att.student_id, temp_id) == 0 && strcmp(att.subject_code, subj.subject_code) == 0){
+        while(fscanf(file_attendance, " %[^:]: %[^,], %[^,], %c", att.subject_code, att.student_id, att.date, &att.status) == 4){
+            if(strcmp(att.subject_code, temp_subject_code) == 0){
+                if(strcmp(att.student_id, temp_id) == 0){
                     total_classes++;
+                
                     if(att.status == 'P'){
                         attended_classes++;
                     }
                 }
             }
-            
-            rewind(file_attendance);
-
-            if(total_classes > 0){
-                found_any = 1;
-                float percentage = ((float)attended_classes / total_classes) * 100;
-                printf("%-15s %-25s %.2f%%\n", subj.subject_code, subj.subject_name, percentage);
-            }
         }
-
-        if(found_any == 0){
-            printf("No attendance records found for this ID\n");
-        }
-
         fclose(file_attendance);
-        fclose(file_subjects);
 
-        wait_for_keypress();
+        system("clear");
+        if(total_classes == 0){
+            printf("No attendance records found for this student in this subject\n");
+            wait_for_keypress();
+            return 0;
+        }
+        else{
+            double percentage = ((double)attended_classes / total_classes) * 100;
+            printf("Total Classes Conducted: %d\n", total_classes);
+            printf("Total Classes Attended: %d\n", attended_classes);
+            printf("Total Classes Absent: %d\n", total_classes - attended_classes);
+            printf("Attendance Percentage: %.2f%%\n", percentage);
+        }
+    }
+    else if(choice == '4'){
         return 0;
     }
     else{
@@ -235,52 +249,99 @@ int attendance_reports(){
 }
 
 int issue_warnings(){
-    struct Student std;
-    struct Subject subj;
     struct Attendance att;
     struct Warning wrn;
+    struct{
+        char student_id[MAX_STRING];
+        char subject_code[MAX_STRING];
+        char latest_date[12];
+        int attended;
+        int total;
+    }records[500];
+    int record_count = 0;
+    int new_warnings = 0;
 
-    FILE *file_students = fopen("../data_field/student_info.txt", "r");
-    FILE *file_subjects = fopen("../data_field/subject_info.txt", "r");
     FILE *file_attendance = fopen("../data_field/attendance_reports.txt", "r");
-    FILE *file_warnings = fopen("../data_field/warnings_history.txt", "a");
 
-    if(file_students == NULL || file_subjects == NULL || file_attendance == NULL || file_warnings == NULL){
-        printf("Error: attendance_reports not found!");
+    if(file_attendance == NULL){
+        printf("Error: files not found!");
+        wait_for_keypress();
         return 1;
     }
 
-    while(fscanf(file_students, " %[^:]: %s", std.student_name, std.student_id) == 2){
-        while(fscanf(file_subjects, " %[^:]: %[^,], %s", subj.subject_name, subj.subject_code, subj.assigned_lecturer_id) == 3){
-            int attended_classes = 0;
-            int total_classes = 0;
+    while(fscanf(file_attendance, " %[^:]: %[^,], %[^,], %c", att.subject_code, att.student_id, att.date, &att.status) == 4){
+        int found = 0;
 
-            while(fscanf(file_attendance, "%s %s %s %c", att.subject_code, att.student_id, att.date, &att.status) == 4){
-                if(strcmp(att.subject_code, subj.subject_code) == 0 && strcmp(att.student_id, std.student_id) == 0){
-                    total_classes++;
-
-                    if(att.status == 'P'){
-                        attended_classes++;
-                    }
+        for(int i = 0; i < record_count; i++){
+            if(strcmp(records[i].student_id, att.student_id) == 0 && strcmp(records[i].subject_code, att.subject_code) == 0){
+                records[i].total++;
+                if(att.status == 'P'){
+                    records[i].attended++;
                 }
-            }
-            rewind(file_attendance);
-
-            if(total_classes > 0){
-                wrn.attendance_percentage = ((float) attended_classes / total_classes) * 100;
-
-                if(wrn.attendance_percentage < 80.00){
-                    fprintf(file_warnings, "%s: %s, %s, %.2f\n", std.student_id, subj.subject_code, att.date, wrn.attendance_percentage);
-                }
+                strcpy(records[i].latest_date, att.date);
+                found = 1;
+                break;
             }
         }
-        rewind(file_subjects);
-    }
-    fclose(file_students);
-    fclose(file_subjects);
-    fclose(file_attendance);
-    fclose(file_warnings);
 
+        if(found == 0 && record_count < 500){
+            strcpy(records[record_count].student_id, att.student_id);
+            strcpy(records[record_count].subject_code, att.subject_code);
+            strcpy(records[record_count].latest_date, att.date);
+            records[record_count].total = 1;
+            records[record_count].attended = (att.status == 'P') ? 1: 0;
+            record_count++;
+        }
+    }
+    fclose(file_attendance);
+
+    char existing_warnings[500][100];
+    int warning_count = 0;
+
+    FILE *file_warnings_read = fopen("../data_field/warnings_history.txt", "r");
+
+    if(file_warnings_read != NULL){
+        while(fscanf(file_warnings_read, " %[^:]: %[^,], %[^,], %f", wrn.student_id, wrn.subject_code, wrn.date_issued, &wrn.attendance_percentage) == 4){
+            sprintf(existing_warnings[warning_count], "%s-%s-%s", wrn.student_id, wrn.subject_code, wrn.date_issued);
+            warning_count++;
+        }
+        fclose(file_warnings_read);
+    }
+
+    FILE *file_warnings_append = fopen("../data_field/warnings_history.txt", "a");
+    if(file_warnings_append == NULL){
+        printf("Error: Cannot write to warnigs_history.txt\n");
+        wait_for_keypress();
+        return 1;
+    }
+
+    for(int i = 0; i < record_count; i++){
+        float percentage = ((float)records[i].attended / records[i].total) * 100;
+        if(percentage < 80.00){
+            char check_str[100];
+            sprintf(check_str, "%s-%s-%s", records[i].student_id, records[i].subject_code, records[i].latest_date);
+
+            int is_duplicate = 0;
+            for(int j = 0; j < warning_count; j++){
+                if(strcmp(existing_warnings[j], check_str) == 0){
+                    is_duplicate = 1;
+                    break;
+                }
+            }
+            
+            if(is_duplicate == 0){
+                fprintf(file_warnings_append, "%s: %s, %s, %.2f\n", records[i].student_id, records[i].subject_code, records[i].latest_date, percentage);
+                strcpy(existing_warnings[warning_count], check_str);
+                warning_count++;
+                new_warnings++;
+            }
+        }
+    }
+    fclose(file_warnings_append);
+
+    system("clear");
+    printf("Warning generation completed. %d new warnings issued\n", new_warnings);
+    wait_for_keypress();
     return 0;
 }
 
@@ -290,6 +351,7 @@ int view_warnings(){
 
     if(file_warnings == NULL){
         printf("Error: warnings_history.txt not found!");
+        wait_for_keypress();
         return 1;
     }
 
@@ -302,7 +364,6 @@ int view_warnings(){
     fclose(file_warnings);
 
     wait_for_keypress();
-    system("clear");
     return 0;
 }
 
@@ -338,7 +399,6 @@ int admin_main(){
         else if(choice == '6'){
             return 0;
         }
-
         else{
             printf("Invalid input! Such a choice does not exist!");
         }

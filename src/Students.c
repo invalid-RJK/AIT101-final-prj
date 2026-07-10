@@ -15,14 +15,16 @@ int view_my_attendance(const char *student_id){
         return 1;
     }
 
-    printf("%-15s %-25s %-15s\n", "Subject Code", "Subject Name", "Percentage");
-    printf("-------------------------------------------------------\n");
+    printf("%-15s %-28s %-15s\n", "Subject Code", "Subject Name", "Percentage");
+    printf("---------------------------------------------------------\n");
 
     while(fscanf(file_subjects, " %[^:]: %[^,], %s", subj.subject_name, subj.subject_code, subj.assigned_lecturer_id) == 3){
         int total_classes = 0;
         int attended_classes = 0;
+
+        rewind(file_attendance);
         
-        while(fscanf(file_attendance, "%s %s %s %c", att.subject_code, att.student_id, att.date, &att.status) == 4){
+        while(fscanf(file_attendance, " %[^:]: %[^,], %[^,], %c", att.subject_code, att.student_id, att.date, &att.status) == 4){
             if(strcmp(att.student_id, student_id) == 0 && strcmp(att.subject_code, subj.subject_code) == 0){
                 total_classes++;
                 if(att.status == 'P'){
@@ -36,7 +38,7 @@ int view_my_attendance(const char *student_id){
         if(total_classes > 0){
             found_any = 1;
             float percentage = ((float)attended_classes / total_classes) * 100;
-            printf("%-15s %-25s %.2f%%\n", subj.subject_code, subj.subject_name, percentage);
+            printf("%-15s %-28s %.2f%%\n", subj.subject_code, subj.subject_name, percentage);
         }
     }
 

@@ -1,19 +1,14 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include <stdbool.h>
 #include "Structures.h"
 
-/* Explicit subject-student enrollment record.
-   Stored separately in subject_students.txt (format: "SUBJECT_CODE STUDENT_ID").
-   This is a local struct only used by Lecturer.c, so it does not require
-   changing the shared Structures.h. */
 struct Enrollment {
     char subject_code[MAX_CODE];
     char student_id[MAX_STRING];
 };
 
-/* Returns the list of subject codes assigned to this lecturer_id,
-   read from subject_info.txt. Same parsing pattern as Admin.c. */
 int get_lecturer_subjects(char *lecturer_id, char subjects[][MAX_CODE], int max_subjects){
     FILE *file_subjects = fopen("../data_field/subject_info.txt", "r");
     int count = 0;
@@ -66,8 +61,26 @@ bool student_exists(char *student_id){
     return found;
 }
 
-/* Checks the explicit enrollment file to see if a student is registered
-   under a given subject. */
+bool lecturer_exists(char *lecturer_id){
+    FILE *file_lecturers = fopen("../data_field/lecturer_info.txt", "r");
+    struct Lecturer lect;
+    bool found = false;
+
+    if(file_lecturers == NULL){
+        printf("Error: lecturer_info.txt not found!\n");
+        return false;
+    }
+
+    while(fscanf(file_lecturers, " %[^:]: %s", lect.lecturer_name, lect.lecturer_id) == 2){
+        if(strcmp(lect.lecturer_id, lecturer_id) == 0){
+            found = true;
+            break;
+        }
+    }
+    fclose(file_lecturers);
+    return found;
+}
+
 bool is_enrolled(char *subject_code, char *student_id){
     FILE *file_enroll = fopen("../data_field/subject_students.txt", "r");
     struct Enrollment enr;
@@ -87,10 +100,6 @@ bool is_enrolled(char *subject_code, char *student_id){
     return found;
 }
 
-/* 1. Register a student under one of the lecturer's own subjects.
-   If the student ID does not exist yet in student_info.txt, the lecturer
-   is prompted to register the student's name first. Then an explicit
-   enrollment row is written to subject_students.txt. */
 int register_student_to_subject(char *lecturer_id){
     char subjects[10][MAX_CODE];
     int subject_count = get_lecturer_subjects(lecturer_id, subjects, 10);
@@ -109,7 +118,7 @@ int register_student_to_subject(char *lecturer_id){
         printf("%s ", subjects[i]);
     }
     printf("\n\nEnter subject code to register student into: ");
-    scanf("%s", subject_code);
+    scanf(" %9s", subject_code);
 
     if(!is_valid_subject_for_lecturer(subject_code, subjects, subject_count)){
         printf("Error: This subject is not assigned to you!\n");
@@ -117,7 +126,7 @@ int register_student_to_subject(char *lecturer_id){
     }
 
     printf("Enter student ID: ");
-    scanf("%s", student_id);
+    scanf(" %49s", student_id);
 
     if(!student_exists(student_id)){
         printf("Student ID not found in student_info.txt.\n");
@@ -133,6 +142,7 @@ int register_student_to_subject(char *lecturer_id){
         fclose(file_students);
     }
 
+    system("clear");
     if(is_enrolled(subject_code, student_id)){
         printf("Student %s is already registered under subject %s.\n", student_id, subject_code);
     }
@@ -148,15 +158,10 @@ int register_student_to_subject(char *lecturer_id){
         printf("Student %s registered under subject %s successfully.\n", student_id, subject_code);
     }
 
-    printf("\nEnter any character to return to the menu: ");
-    char pause;
-    scanf(" %c", &pause);
-    system("clear");
+    wait_for_keypress();
     return 0;
 }
 
-/* 2. Record a single day's attendance for a student already enrolled
-   in one of the lecturer's subjects. */
 int record_daily_attendance(char *lecturer_id){
     char subjects[10][MAX_CODE];
     int subject_count = get_lecturer_subjects(lecturer_id, subjects, 10);
@@ -176,7 +181,7 @@ int record_daily_attendance(char *lecturer_id){
         printf("%s ", subjects[i]);
     }
     printf("\n\nEnter subject code: ");
-    scanf("%s", subject_code);
+    scanf(" %9s", subject_code);
 
     if(!is_valid_subject_for_lecturer(subject_code, subjects, subject_count)){
         printf("Error: This subject is not assigned to you!\n");
@@ -184,7 +189,7 @@ int record_daily_attendance(char *lecturer_id){
     }
 
     printf("Enter student ID: ");
-    scanf("%s", student_id);
+    scanf(" %49s", student_id);
 
     if(!is_enrolled(subject_code, student_id)){
         printf("Error: Student %s is not registered under subject %s.\n", student_id, subject_code);
@@ -193,7 +198,7 @@ int record_daily_attendance(char *lecturer_id){
     }
 
     printf("Enter date (YYYY-MM-DD): ");
-    scanf("%s", date);
+    scanf(" %10s", date);
 
     printf("Enter status (P for Present / A for Absent): ");
     scanf(" %c", &status);
@@ -203,25 +208,21 @@ int record_daily_attendance(char *lecturer_id){
         return 1;
     }
 
+    system("clear");
     FILE *file_attendance = fopen("../data_field/attendance_reports.txt", "a");
     if(file_attendance == NULL){
         printf("Error: attendance_reports.txt not found!\n");
         return 1;
     }
-    fprintf(file_attendance, "%s %s %s %c\n", subject_code, student_id, date, status);
+    fprintf(file_attendance, "%s: %s, %s, %c\n", subject_code, student_id, date, status);
     fclose(file_attendance);
 
     printf("Attendance recorded successfully.\n");
 
-    printf("\nEnter any character to return to the menu: ");
-    char pause;
-    scanf(" %c", &pause);
-    system("clear");
+    wait_for_keypress();
     return 0;
 }
 
-/* 3. Update an existing attendance record (subject + student + date)
-   by rewriting attendance_reports.txt through a temp file. */
 int update_attendance_record(char *lecturer_id){
     char subjects[10][MAX_CODE];
     int subject_count = get_lecturer_subjects(lecturer_id, subjects, 10);
@@ -243,7 +244,7 @@ int update_attendance_record(char *lecturer_id){
         printf("%s ", subjects[i]);
     }
     printf("\n\nEnter subject code: ");
-    scanf("%s", subject_code);
+    scanf(" %9s", subject_code);
 
     if(!is_valid_subject_for_lecturer(subject_code, subjects, subject_count)){
         printf("Error: This subject is not assigned to you!\n");
@@ -251,9 +252,9 @@ int update_attendance_record(char *lecturer_id){
     }
 
     printf("Enter student ID: ");
-    scanf("%s", student_id);
+    scanf(" %9s", student_id);
     printf("Enter date of the record to update (YYYY-MM-DD): ");
-    scanf("%s", date);
+    scanf(" %10s", date);
     printf("Enter new status (P for Present / A for Absent): ");
     scanf(" %c", &new_status);
 
@@ -270,13 +271,14 @@ int update_attendance_record(char *lecturer_id){
         return 1;
     }
 
-    while(fscanf(file_attendance, "%s %s %s %c", att.subject_code, att.student_id, att.date, &att.status) == 4){
+    system("clear");
+    while(fscanf(file_attendance, " %[^:]: %[^,], %[^,], %c", att.subject_code, att.student_id, att.date, &att.status) == 4){
         if(strcmp(att.subject_code, subject_code) == 0 && strcmp(att.student_id, student_id) == 0 && strcmp(att.date, date) == 0){
-            fprintf(file_temp, "%s %s %s %c\n", att.subject_code, att.student_id, att.date, new_status);
+            fprintf(file_temp, "%s: %s, %s, %c\n", att.subject_code, att.student_id, att.date, new_status);
             record_found = true;
         }
         else{
-            fprintf(file_temp, "%s %s %s %c\n", att.subject_code, att.student_id, att.date, att.status);
+            fprintf(file_temp, "%s: %s, %s, %c\n", att.subject_code, att.student_id, att.date, att.status);
         }
     }
     fclose(file_attendance);
@@ -292,14 +294,10 @@ int update_attendance_record(char *lecturer_id){
         printf("Error: No matching attendance record found for %s, %s, %s.\n", subject_code, student_id, date);
     }
 
-    printf("\nEnter any character to return to the menu: ");
-    char pause;
-    scanf(" %c", &pause);
-    system("clear");
+    wait_for_keypress();
     return 0;
 }
 
-/* 4. View the full attendance list for one of the lecturer's own subjects. */
 int view_subject_attendance(char *lecturer_id){
     char subjects[10][MAX_CODE];
     int subject_count = get_lecturer_subjects(lecturer_id, subjects, 10);
@@ -318,7 +316,7 @@ int view_subject_attendance(char *lecturer_id){
         printf("%s ", subjects[i]);
     }
     printf("\n\nEnter subject code to view: ");
-    scanf("%s", subject_code);
+    scanf(" %9s", subject_code);
 
     if(!is_valid_subject_for_lecturer(subject_code, subjects, subject_count)){
         printf("Error: This subject is not assigned to you!\n");
@@ -336,7 +334,7 @@ int view_subject_attendance(char *lecturer_id){
     printf("%-15s %-15s %-15s %-10s\n", "Subject Code", "Student ID", "Date", "Status");
     printf("-------------------------------------------------------\n");
 
-    while(fscanf(file_attendance, "%s %s %s %c", att.subject_code, att.student_id, att.date, &att.status) == 4){
+    while(fscanf(file_attendance, " %[^:]: %[^,], %[^,], %c", att.subject_code, att.student_id, att.date, &att.status) == 4){
         if(strcmp(att.subject_code, subject_code) == 0){
             printf("%-15s %-15s %-15s %-10c\n", att.subject_code, att.student_id, att.date, att.status);
             found_records++;
@@ -348,10 +346,7 @@ int view_subject_attendance(char *lecturer_id){
         printf("No attendance records found for this subject.\n");
     }
 
-    printf("\nEnter any character to return to the menu: ");
-    char pause;
-    scanf(" %c", &pause);
-    system("clear");
+    wait_for_keypress();
     return 0;
 }
 
@@ -361,7 +356,14 @@ int lecturer_main(){
 
     system("clear");
     printf("Enter your Lecturer ID: ");
-    scanf(" %s", lecturer_id);
+    scanf(" %49s", lecturer_id);
+
+    if(!lecturer_exists(lecturer_id)){
+        printf("Error: Lecturer ID '%s' not found in lecturer_info.txt.\n", lecturer_id);
+        printf("Please check with the Academic (Admin) to register your ID first.\n");
+        wait_for_keypress();
+        return 1;
+    }
 
     while(1){
         system("clear");
