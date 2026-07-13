@@ -4,12 +4,7 @@
 #include "Admin.h"
 #include "Students.h"
 #include "Lecturer.h"
-
-void wait_for_keypress(){
-    printf("\nEnter any character to return to the menu: ");
-    char pause;
-    scanf(" %c", &pause);
-}
+#include "Utils.h"
 
 int main(){
     char role;
@@ -36,7 +31,9 @@ int main(){
             return 0;
         }
         else{
+            system("clear");
             printf("Invalid input! Such a role does not exist!\n");
+            wait_for_keypress();
         }
     }
 }

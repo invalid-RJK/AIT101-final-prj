@@ -295,49 +295,34 @@ int issue_warnings(){
     }
     fclose(file_attendance);
 
-    char existing_warnings[500][100];
-    int warning_count = 0;
+    FILE *file_warnings = fopen("../data_field/warnings_history.txt", "a+");
 
-    FILE *file_warnings_read = fopen("../data_field/warnings_history.txt", "r");
-
-    if(file_warnings_read != NULL){
-        while(fscanf(file_warnings_read, " %[^:]: %[^,], %[^,], %f", wrn.student_id, wrn.subject_code, wrn.date_issued, &wrn.attendance_percentage) == 4){
-            sprintf(existing_warnings[warning_count], "%s-%s-%s", wrn.student_id, wrn.subject_code, wrn.date_issued);
-            warning_count++;
-        }
-        fclose(file_warnings_read);
-    }
-
-    FILE *file_warnings_append = fopen("../data_field/warnings_history.txt", "a");
-    if(file_warnings_append == NULL){
-        printf("Error: Cannot write to warnigs_history.txt\n");
+    if(file_warnings == NULL){
+        printf("Error: warnings_history.txt not found!\n");
         wait_for_keypress();
         return 1;
     }
 
     for(int i = 0; i < record_count; i++){
         float percentage = ((float)records[i].attended / records[i].total) * 100;
-        if(percentage < 80.00){
-            char check_str[100];
-            sprintf(check_str, "%s-%s-%s", records[i].student_id, records[i].subject_code, records[i].latest_date);
-
+        if(percentage < 80.0){
             int is_duplicate = 0;
-            for(int j = 0; j < warning_count; j++){
-                if(strcmp(existing_warnings[j], check_str) == 0){
+
+            rewind(file_warnings);
+            while(fscanf(file_warnings, " %[^:]: %[^,], %[^,], %f", wrn.student_id, wrn.subject_code, wrn.date_issued, &wrn.attendance_percentage) == 4){
+                if(strcmp(wrn.student_id, records[i].student_id) == 0 && strcmp(wrn.subject_code, records[i].subject_code) == 0 && strcmp(wrn.date_issued, records[i].latest_date) == 0){
                     is_duplicate = 1;
                     break;
                 }
             }
-            
+
             if(is_duplicate == 0){
-                fprintf(file_warnings_append, "%s: %s, %s, %.2f\n", records[i].student_id, records[i].subject_code, records[i].latest_date, percentage);
-                strcpy(existing_warnings[warning_count], check_str);
-                warning_count++;
+                fprintf(file_warnings, "%s: %s, %s, %.2f\n", records[i].student_id, records[i].subject_code, records[i].latest_date, percentage);
                 new_warnings++;
             }
         }
     }
-    fclose(file_warnings_append);
+    fclose(file_warnings);
 
     system("clear");
     printf("Warning generation completed. %d new warnings issued\n", new_warnings);
