@@ -133,11 +133,21 @@ int register_student_to_subject(char *lecturer_id){
         printf("Enter student's name to register as a new student: ");
         scanf(" %[^\n]", student_name);
 
-        FILE *file_students = fopen("../data_field/student_info.txt", "a");
+        FILE *file_students = fopen("../data_field/student_info.txt", "a+");
         if(file_students == NULL){
             printf("Error: student_info.txt not found!\n");
             return 1;
         }
+
+        fseek(file_students, -1, SEEK_END);
+        int last_char = fgetc(file_students);
+
+        fseek(file_students, 0, SEEK_END);   
+
+        if(last_char != EOF && last_char != '\n'){
+            fprintf(file_students, "\n");
+        }
+
         fprintf(file_students, "%s: %s\n", student_name, student_id);
         fclose(file_students);
     }
@@ -252,7 +262,7 @@ int update_attendance_record(char *lecturer_id){
     }
 
     printf("Enter student ID: ");
-    scanf(" %9s", student_id);
+    scanf(" %49s", student_id);
     printf("Enter date of the record to update (YYYY-MM-DD): ");
     scanf(" %10s", date);
     printf("Enter new status (P for Present / A for Absent): ");
